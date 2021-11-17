@@ -4,5 +4,11 @@
  * @returns {*[]} - the new array with uniq values
  */
 export function uniq(arr) {
+  if (!arr || !arr.length) {
+    return [];
+  }
 
+  return arr.reduce((accum, value) => {
+    return (!accum.includes(value)) ? [...accum, value] : accum;
+  }, []);
 }
