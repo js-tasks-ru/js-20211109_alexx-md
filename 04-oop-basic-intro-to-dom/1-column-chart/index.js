@@ -1,29 +1,32 @@
 export default class ColumnChart {
   element = null;
   chartHeight = 50;
+  subElements = {};
 
-  constructor(obj) {
-    const { data, label, link, value, formatHeading = (value) => value } = obj || {};
-
-    this.data = data !== undefined ? data : [];
-    this.label = label !== undefined ? label : '';
-    this.link = link !== undefined ? link : '';
-    this.value = value !== undefined ? value : '';
-    this.formatHeading = formatHeading;
+  constructor({ data = [], label = '', link = '', value = '', formatHeading = (value) => value }) {
+    this.data = data;
+    this.label = label;
+    this.link = link;
+    this.value = formatHeading(value);
 
     this.render();
   }
 
-  update(obj) {
-    new this.constructor(obj);
+  update(data) {
+    this.data = data;
+    this.subElements.body.innerHTML = this.renderBodyTemplate(data);
   }
 
   destroy() {
     this.remove();
+    this.element = null;
+    this.subElements = {};
   }
 
   remove() {
-    this.element.remove();
+    if (this.element) {
+      this.element.remove();
+    }
   }
 
   getColumnProps(data) {
@@ -39,25 +42,17 @@ export default class ColumnChart {
   }
 
   renderHeaderTemplate() {
-    return `<div data-element="header" class="column-chart__header">${this.formatHeading(this.value)}</div>`;
+    return `<div data-element="header" class="column-chart__header">${this.value}</div>`;
   }
 
   renderBodyTemplate() {
-    const template = [];
-
-    this.getColumnProps(this.data).forEach(({value, percent}) => {
-      template.push(`<div style="--value: ${value}" data-tooltip="${percent}"></div>}`);
-    });
-
-    return template.join('');
+    return this.getColumnProps(this.data).map(({value, percent}) => {
+      return `<div style="--value: ${value}" data-tooltip="${percent}"></div>`;
+    }).join('');
   }
 
   renderLinkTemplate() {
-    if (this.link) {
-      return `<a href="${this.link}" class="column-chart__link">View all</a>`;
-    }
-
-    return '';
+    return this.link ? `<a href="${this.link}" class="column-chart__link">View all</a>` : '';
   }
 
   getClassList() {
@@ -66,11 +61,9 @@ export default class ColumnChart {
       'column-chart_loading': !this.data.length,
     };
 
-    const classList = [];
-
-    Object.entries(classListObj).forEach(([key, value]) => value ? classList.push(key) : null);
-
-    return classList.join(' ');
+    return Object.entries(classListObj)
+      .reduce((accum, [key, value]) => (value) ? [...accum, key] : accum, [])
+      .join(' ');
   }
 
   getTemplate() {
@@ -88,9 +81,23 @@ export default class ColumnChart {
     </div>`;
   }
 
+  getSubElements(element) {
+    const result = {};
+    const elements = element.querySelectorAll('[data-element]');
+
+    for (const subElement of elements) {
+      const name = subElement.dataset.element;
+
+      result[name] = subElement;
+    }
+
+    return result;
+  }
+
   render() {
     const element = document.createElement('div');
     element.innerHTML = this.getTemplate();
     this.element = element.firstElementChild;
+    this.subElements = this.getSubElements(this.element);
   }
 }
