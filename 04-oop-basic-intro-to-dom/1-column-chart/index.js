@@ -3,7 +3,8 @@ export default class ColumnChart {
   chartHeight = 50;
   subElements = {};
 
-  constructor({ data = [], label = '', link = '', value = '', formatHeading = (value) => value }) {
+  constructor(props = {}) {
+    const { data = [], label = '', link = '', value = '', formatHeading = (value) => value } = props;
     this.data = data;
     this.label = label;
     this.link = link;
