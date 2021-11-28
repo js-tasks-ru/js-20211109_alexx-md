@@ -1,4 +1,5 @@
 export default class NotificationMessage {
+  static activeComponent;
   element = null;
   timeout = null;
 
@@ -6,6 +7,7 @@ export default class NotificationMessage {
     const { duration = 2000, type = 'success' } = props;
     this.message = message;
     this.duration = duration;
+    this.durationinSeconds = `${this.duration / 1000}s`;
     this.type = type;
 
     this.render();
@@ -23,12 +25,8 @@ export default class NotificationMessage {
       .join(' ');
   }
 
-  getDuration() {
-    return `${this.duration / 1000}s`;
-  }
-
   getTemplate() {
-    return `<div class="${this.getClassList()}" style="--value:${this.getDuration()}">
+    return `<div class="${this.getClassList()}" style="--value:${this.durationinSeconds}">
       <div class="timer"></div>
       <div class="inner-wrapper">
         <div class="notification-header">${this.type}</div>
@@ -39,40 +37,37 @@ export default class NotificationMessage {
     </div>`;
   }
 
-  render(target = null) {
-    if (target) {
-      target.innerHTML = this.getTemplate();
-      this.element = target;
-    } else {
-      target = document.createElement('div');
-      target.innerHTML = this.getTemplate();
-      this.element = target.firstElementChild;
-    }
+  render() {
+    const element = document.createElement('div');
+    element.innerHTML = this.getTemplate();
+    this.element = element.firstElementChild;
   }
 
   remove () {
+    clearTimeout(this.timeout);
+
     if (this.element) {
       this.element.remove();
-      this.element = null;
     }
   }
 
   destroy() {
     this.remove();
+    this.element = null;
+    NotificationMessage.activeComponent = null;
   }
 
-  show(target) {
-    let bodyElement = document.body;
-
-    if (this.timeout) {
-      this.remove();
+  show(target = document.body) {
+    if (NotificationMessage.activeComponent) {
+      NotificationMessage.activeComponent.remove();
     }
-    this.render(target);
 
-    bodyElement.appendChild(this.element);
+    target.append(this.element);
+
     this.timeout = setTimeout(() => {
-      clearTimeout(this.timeout);
       this.remove();
     }, this.duration);
+
+    NotificationMessage.activeComponent = this;
   }
 }
