@@ -154,7 +154,7 @@ export default class SortableTable {
     `;
   }
 
-  async render() {
+  render() {
     const target = document.createElement('div');
     target.innerHTML = this.getTemplate();
     this.element = target.firstElementChild;
