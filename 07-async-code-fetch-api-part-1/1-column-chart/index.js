@@ -11,18 +11,7 @@ export default class ColumnChart {
     to: '',
   };
 
-  constructor({
-    data = [],
-    label = '',
-    link = '',
-    value = '',
-    formatHeading = (value) => value,
-    url = '',
-    range = {
-      from: '',
-      to: '',
-    },
-  } = {}) {
+  constructor({ data = [], label = '', link = '', value = '', formatHeading = (value) => value, url = '', range = { from: '', to: '', }} = {}) {
     this.label = label;
     this.link = link;
     this.value = formatHeading(value);
