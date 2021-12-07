@@ -6,19 +6,15 @@ export default class ColumnChart {
   element = null;
   chartHeight = 50;
   subElements = {};
-  range = {
-    from: '',
-    to: '',
-  };
 
-  constructor({ data = [], label = '', link = '', value = '', formatHeading = (value) => value, url = '', range = { from: '', to: '', }} = {}) {
+  constructor({ data = [], label = '', link = '',  value = '', formatHeading = (value) => value, url = '', range = {} } = {}) {
     this.label = label;
     this.link = link;
     this.value = formatHeading(value);
     this.url = new URL(`${BACKEND_URL}/${url}`);
     this.url.search = new URLSearchParams(this.range);
 
-    if (range.from && range.to) {
+    if (Object.keys(range).length) {
       this.range = {
         from: range.from.toISOString(),
         to: range.to.toISOString(),
@@ -39,14 +35,12 @@ export default class ColumnChart {
     return fetchJson(this.url.href, this.range);
   }
 
-  async update(from = '', to = '') {
+  async update(from, to) {
     try {
-      if (from && to) {
-        this.range = {
-          from: from.toISOString(),
-          to: to.toISOString(),
-        };
-      }
+      this.range = {
+        from: from ? from.toISOString() : '',
+        to: to ? to.toISOString() : '',
+      };
       this.url.search = new URLSearchParams(this.range);
 
       this.data = await fetchJson(this.url.href, this.range);
