@@ -3,8 +3,7 @@ export default class SortableTable {
   element = null;
   subElements = {};
   sorted = null;
-
-  static sortableCells;
+  sortableCells;
 
   clickHandler = (e) => {
     /*
@@ -30,7 +29,7 @@ export default class SortableTable {
     const sortedData = this.sortData(field, order);
     const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id="${field}"]`);
 
-    SortableTable.sortableCells.forEach(({dataset}) => dataset.order = '');
+    this.sortableCells.forEach(({dataset}) => dataset.order = '');
 
     currentColumn.dataset.order = order;
     this.subElements.body.innerHTML = this.getTableBody(sortedData);
@@ -71,7 +70,7 @@ export default class SortableTable {
   }
 
   async destroy() {
-    SortableTable.sortableCells.forEach((item) => {
+    this.sortableCells.forEach((item) => {
       item.removeEventListener('pointerdown', this.clickHandler);
     });
     this.remove();
@@ -155,17 +154,17 @@ export default class SortableTable {
     `;
   }
 
-  async render() {
+  render() {
     const target = document.createElement('div');
     target.innerHTML = this.getTemplate();
     this.element = target.firstElementChild;
     this.subElements = this.getSubElements(this.element);
-    SortableTable.sortableCells = this.element.querySelectorAll('.sortable-table__cell[data-sortable="true"]');
+    this.sortableCells = this.element.querySelectorAll('.sortable-table__cell[data-sortable="true"]');
     const defaultSortedColumn = this.element.querySelector(`.sortable-table__cell[data-id="${this.sorted.id}"]`);
     defaultSortedColumn.setAttribute('data-order', this.sorted.order);
     this.sort(this.sorted.id, this.sorted.order);
 
-    SortableTable.sortableCells.forEach((item) => {
+    this.sortableCells.forEach((item) => {
       item.addEventListener('pointerdown', this.clickHandler);
     });
   }
